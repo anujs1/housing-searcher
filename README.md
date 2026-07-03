@@ -64,10 +64,12 @@ layout changes.
 
 ## Install
 
+This project uses [uv](https://docs.astral.sh/uv/). Dependencies live in
+`pyproject.toml` (managed with `uv add`) and are locked in `uv.lock`.
+
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e .
-python -m playwright install chromium   # one-time browser download
+uv sync                              # create the venv and install from the lockfile
+uv run playwright install chromium   # one-time browser download
 ```
 
 Set your Anthropic credentials for the extract step (`ANTHROPIC_API_KEY`, or an
@@ -75,25 +77,31 @@ Set your Anthropic credentials for the extract step (`ANTHROPIC_API_KEY`, or an
 
 ## Usage
 
+Run commands through `uv run` (or activate the venv with `source .venv/bin/activate`
+and drop the prefix).
+
 ```bash
 # 1. Log in once — a browser opens; log in by hand, then press Enter.
-housing-searcher login
+uv run housing-searcher login
 
 # 2. Capture the group feed. --manual is the lowest-footprint mode:
 #    you scroll, it records. (Default auto-scrolls at a human pace.)
-housing-searcher fetch --manual
-housing-searcher fetch --scrolls 10          # or let it scroll for you
+uv run housing-searcher fetch --manual
+uv run housing-searcher fetch --scrolls 10       # or let it scroll for you
 
 # 3. Parse captured responses into raw posts.
-housing-searcher parse
+uv run housing-searcher parse
 
 # 4. Normalize into structured listings with Claude.
-housing-searcher extract                     # drops non-housing chatter
-housing-searcher extract --keep-all          # keep everything, tagged
+uv run housing-searcher extract                  # drops non-housing chatter
+uv run housing-searcher extract --keep-all       # keep everything, tagged
 
 # Or do fetch + parse + extract in one go:
-housing-searcher run --manual
+uv run housing-searcher run --manual
 ```
+
+To add or change dependencies, use uv so `pyproject.toml` and `uv.lock` stay in
+sync — e.g. `uv add <package>` / `uv remove <package>`.
 
 The group defaults to the one you configured; override with `--group <id>` or
 `HOUSING_SEARCHER_GROUP`. Output goes to `data/` (override with
@@ -140,7 +148,7 @@ The parser is fully testable without touching Facebook, using the committed
 fixture:
 
 ```bash
-PYTHONPATH=src python -m housing_searcher.parse_feed examples/sample_captures.jsonl
+uv run python -m housing_searcher.parse_feed examples/sample_captures.jsonl
 ```
 
 ## Security
