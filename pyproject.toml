@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "housing-searcher"
+version = "0.1.0"
+description = "Personal-use pipeline for structured housing data from Facebook groups"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.40",
+    "playwright>=1.40",
+]
+
+[project.scripts]
+housing-searcher = "housing_searcher.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
