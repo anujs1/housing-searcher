@@ -64,13 +64,36 @@ layout changes.
 
 ## Install
 
-This project uses [uv](https://docs.astral.sh/uv/). Dependencies live in
-`pyproject.toml` (managed with `uv add`) and are locked in `uv.lock`.
+This project uses [uv](https://docs.astral.sh/uv/) and targets **Python 3.14.4**
+(`requires-python = ">=3.14"` in `pyproject.toml`, pinned in `.python-version`).
+Dependencies live in `pyproject.toml` (managed with `uv add`) and are locked in
+`uv.lock`.
 
 ```bash
+uv python install 3.14.4             # if not already installed
 uv sync                              # create the venv and install from the lockfile
 uv run playwright install chromium   # one-time browser download
 ```
+
+### If `uv` doesn't know about Python 3.14.4 yet
+
+`uv`'s bundled Python-download manifest can lag behind the latest CPython patch
+release — an older `uv` may fail `uv python install 3.14.4` with "No download
+found for request". Fix by upgrading `uv` itself first:
+
+```bash
+python3 -m pip install --user --upgrade uv   # pulls the latest uv from PyPI
+```
+
+Prefer this over `uv self update`, which calls `api.github.com` — in sandboxed
+environments (e.g. Claude Code on the web) that endpoint can be proxy-blocked
+(403) even with a `GITHUB_TOKEN` set, while PyPI is reliably reachable and needs
+no token or extra environment variables.
+
+In Claude Code on the web specifically, this is automated: see
+[`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh), which runs
+at the start of every remote session (`$CLAUDE_CODE_REMOTE`), upgrades `uv`
+from PyPI, installs and pins 3.14.4, and runs `uv sync`.
 
 Set your Anthropic credentials for the extract step (`ANTHROPIC_API_KEY`, or an
 `ant auth login` profile).
